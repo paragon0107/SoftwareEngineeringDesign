@@ -2,10 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Personal Photo Diary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" > </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-회원가입이요
-
+    <div class="navbar">
+        <div class="left-nav">
+            <div class="logo">Photo Diary</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/feed">Feed</a>
+                <a href="/userlist">User List</a>
+                <a href="/messages">Messages</a>
+                <a href="/myprofile">My Profile</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Sign Up</h1>
+        <p>Create your account to start uploading and sharing your photos.</p>
+        <form id="signupForm">
+            <input type="text" placeholder="Username" id="signupUsername" required>
+            <input type="text" placeholder="Email" id="signupEmail" required>
+            <input type="password" placeholder="Password" id="signupPassword1" required>
+            <input type="password" placeholder="Password Checking" id="signupPassword2" required>
+            <button id="signUpButton" type="submit">Sign Up</button>
+        </form>
+    </div>
+    
 </body>
+<script>
+    async function postInfor(e) {
+    e.preventDefault()
+
+        try {
+             const res = await axios.post('signup',{
+                'name':document.getElementById('signupUsername').value,
+                'email':document.getElementById('signupEmail').value,
+                'password1':document.getElementById('signupPassword1').value,
+                'password2': document.getElementById('signupPassword2').value
+             })
+            if(res.status === 200){
+                window.location.href='/signin'
+            }
+        }catch(error){
+            if (error.response&&error.response.data.error){
+            alert(error.response.data.error)
+            }
+            return null;
+        }
+
+
+}
+document.getElementById('signUpButton').addEventListener('click',postInfor)
+
+</script>
 </html>

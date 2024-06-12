@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Personal Photo Diary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="modalSendMessage" style="display: none;">
+        <div>
+            <div>
+                <span id="targetId" style="display: none;"></span>
+                <h1 id="targetName"></h1>
+                <label for="messageContent">메세지</label>
+                <textarea id="messageContent"  required> </textarea>
+                <div>
+                    <button type="button" id="sendMessage" onclick="sendMessage()">Send Message</button>
+                    <button type="button" id="close" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="navbar">
+        <div class="left-nav">
+            <div class="logo">Photo Diary</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/feed">Feed</a>
+                <a href="/userlist">User List</a>
+                <a href="/messages">Messages</a>
+                <a href="/myprofile">My Profile</a>
+            </div>
+        </div>
+        <div class="right-nav">
+             <button id="LoginButton" class="login-btn" >LogOut</button>
+        </div>
+    </div>
+    <div class="form-container">
+        <h1>Received Message</h1>
+        <div id="messageContainer">
+            {% for message in messages %}
+                <div id="messageWrapper">
+                        <div id="boxForm">
+                            <div id="messageBox">
+                                <h2>From {{ user[loop.index - 1] }}</h2>
+                                <h3>Message</h3>
+                                <p>{{ message[1] }}</p>
+                            </div>
+                            <div id="buttonBox">
+                                <button type="button" onclick="sendMode('{{ user[loop.index - 1] }}','{{ message[0] }}')">Reply</button>
+                                <button type="button" id="deleteButton" onclick="deleteMessage('{{ message[2] }}')">Delete</button>
+                            </div>
+                        </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+</body>
+<script>
+
+    function sendMode(target,targetId){
+            document.getElementById("targetName").innerText = "Send to "+target
+            document.getElementById("targetId").innerText = targetId
+            document.getElementById("modalSendMessage").style.display="flex"
+
+        }
+    function sendMessage(){
+            const res = axios.post('/messages',{
+                'receiverId':document.getElementById('targetId').innerText,
+                'message': document.getElementById('messageContent').value
+            }).then(response=>{
+                if (response.data ==='Success'){
+                closeModal()
+                alert("메세지 전송 성공")
+            }else{
+                alert("메세지 전송 실패")
+            }
+            })
+    }
+    function closeModal(){
+            console.log("투명")
+            document.getElementById('messageContent').value=""
+            document.getElementById("modalSendMessage").style.display="none"
+    }
+    async function deleteMessage(id){
+        const res = await axios.delete('/messages', {
+                data:{
+                    messageId:id
+                }
+            })
+            if (res.status === 200){
+                location.reload()
+            }
+
+    }
+
+    logButton =document.getElementById("LoginButton")
+        function checkSession(){
+        if(logButton.innerText === "LogIn"){
+            axios.get('/signin')
+             window.location.href = "/signin"
+        }
+        if(logButton.innerText ==="LogOut"){
+            axios.get('/logout')
+            location.reload()
+        }
+    }
+
+    logButton.addEventListener("click",checkSession)
+</script>
+</html>

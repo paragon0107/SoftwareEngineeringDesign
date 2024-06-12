@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List - Personal Photo Diary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="left-nav">
+            <div class="logo">Photo Diary</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/feed">Feed</a>
+                <a href="/userlist">User List</a>
+                <a href="/messages">Messages</a>
+                <a href="/myprofile">My Profile</a>
+            </div>
+        </div>
+        <button id="LoginButton" class="login-btn" >LogIn</button>
+    </div>
+    <div class="container">
+        <h1>User List</h1>
+        <ul id="userList">
+            {% for user in users %}
+                <li>NAME: {{ user[1] }} - Email: {{ user[2] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+<script>
+    logButton =document.getElementById("LoginButton")
+
+    const res = axios.get('/checksession').then(response=>{
+         console.log(response)
+         if(response.data != null){
+                    logButton.innerText = response.data
+                }
+    })
+
+    function checkSession(){
+        if(logButton.innerText === "LogIn"){
+            axios.get('/signin')
+             window.location.href = "/signin"
+        }
+        if(logButton.innerText ==="LogOut"){
+            axios.get('/logout')
+            location.reload()
+        }
+    }
+
+    logButton.addEventListener("click",checkSession)
+</script>
+</html>
+

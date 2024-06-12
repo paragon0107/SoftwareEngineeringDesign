@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Personal Photo Diary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        .profile-container {
+            width: 80%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .post-form {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .post-form div {
+            margin-bottom: 15px;
+        }
+        .post-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .post-form input, .post-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .post-form button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .post-form button:hover {
+            background-color: #0056b3;
+        }
+        .posts-list {
+            width: 100%;
+            max-width: 600px;
+        }
+        .post-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .post-item h3 {
+            margin-top: 0;
+        }
+        #buttons{
+            display: flex;
+            justify-content: space-between;
+        }
+        .post-item button {
+
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 49%;
+        }
+        #editButton:hover {
+            background-color: #218838;
+        }
+        #editButton{
+            background-color: #28a745;
+        }
+        #deleteButton{
+            background-color: red;
+        }
+        #deleteButton:hover{
+            background-color: darkred;
+        }
+    </style>
+    <script>
+        async function editMode(postId, keyword, content) {
+
+            document.getElementById('title').innerText = postId+"photo edit mode"
+            document.getElementById('PostPhoto').innerText = "Edit"
+            document.getElementById('PostPhoto').style.background="#28a745"
+            document.getElementById('keyword').value = keyword;
+            document.getElementById('content').innerText = content;
+            document.getElementById('postId').value = postId;
+        }
+
+        async function deletePost(postId){
+            const res = await axios.delete('/photo', {
+                data:{
+                    postId:postId
+                }
+            })
+            if (res.status === 200){
+                location.reload()
+            }
+
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="left-nav">
+            <div class="logo">Photo Diary</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/feed">Feed</a>
+                <a href="/userlist">User List</a>
+                <a href="/messages">Messages</a>
+                <a href="/myprofile">My Profile</a>
+            </div>
+        </div>
+        <div class="right-nav">
+            <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </div>
+    <div class="profile-container">
+        <h1>My Profile</h1>
+        <h2>Hi {{ name }}!!</h2>
+        <div class="post-form">
+            <h2 id="title">Create / Edit Post</h2>
+            <form id="photoform" action="/photo" method="post" enctype="multipart/form-data">
+                <div>
+                    <label for="keyword">Keyword:</label>
+                    <input type="text" id="keyword" name="keyword" required>
+                </div>
+                <div>
+                    <label for="content">Content:</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                <div>
+                    <label for="file">Upload Image:</label>
+                    <input type="file" id="image_url" name="file" accept=".jpg,.jpeg,.png,.gif" required>
+                </div>
+                <div style="display: none">
+                    <label for="postId"></label>
+                    <input type="number" id="postId" name="postId">
+                </div>
+                <button id ="PostPhoto" type="submit">Save</button>
+            </form>
+        </div>
+        <div class="posts-list">
+            {% for post in posts %}
+                <div class="post-item">
+                <div> <img src="{{ post[3] }}" alt="Image" style="width: 100%; border-radius: 10px;"></div>
+                <div>
+                    {% for word in keywords[loop.index - 1] %}
+                            <span class="tag">#{{ word }} </span>
+                    {% endfor %}
+                </div>
+                <div>
+                    <p>{{ post[2] }}</p>
+                </div>
+                <div id="buttons">
+                    <button type="button" id="editButton" onclick=" editMode({{ post[0] }},{{ keywords[loop.index - 1] }},'{{ post[2] }}') " >Edit</button>
+                    <button type="button" id="deleteButton" onclick="deletePost({{ post[0] }})">Delete</button>
+                </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+
+
